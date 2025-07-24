@@ -26,8 +26,8 @@ jobs:
 
     - name: Clone GitOps Repo and Update Tag
       run: |
-        git config --global user.email "${{USER_EMAIL_GIT}}"
-        git config --global user.name "${{USERNAME_GIT}}"
+        git config --global user.email "lakkawardhananjay@gmail.com"
+        git config --global user.name "lakkawardhananjay"
 
         git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@github.com:lakkawardhananjay/argocd-parc.git
         cd argocd-parc/dev
