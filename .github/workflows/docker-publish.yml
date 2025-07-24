@@ -29,7 +29,7 @@ jobs:
         git config --global user.email "lakkawardhananjay@gmail.com"
         git config --global user.name "lakkawardhananjay"
 
-        git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@github.com:lakkawardhananjay/argocd-parc.git
+        git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@github.com/lakkawardhananjay/argocd-parc.git
         cd argocd-parc/dev
 
         sed -i 's|image: .*|image: dhananjaylakkawar/heroku-alike:latest|' deployment.yaml
