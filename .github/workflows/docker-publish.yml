@@ -18,11 +18,15 @@ jobs:
     - name: Login to Docker Hub
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
+           # In your GitHub Actions YAML:
     - name: Build and push Docker image
       run: |
         IMAGE_NAME=dhananjaylakkawar/heroku-alike
-        docker build -t $IMAGE_NAME:latest .
-        docker push $IMAGE_NAME:latest
+        TAG=$(git rev-parse --short HEAD)
+        docker build -t $IMAGE_NAME:$TAG .
+        docker push $IMAGE_NAME:$TAG
+
+        echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
 
     - name: Clone GitOps Repo and Update Tag
       run: |
@@ -32,7 +36,10 @@ jobs:
         git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@github.com/lakkawardhananjay/argocd-parc.git
         cd argocd-parc/dev
 
-        sed -i 's|image: .*|image: dhananjaylakkawar/heroku-alike:latest|' deployment.yaml
+        sed -i "s|image: .*|image: dhananjaylakkawar/heroku-alike:${IMAGE_TAG}|" deployment.yaml
 
-        git commit -am "🚀 Auto-update image to latest from CI"
+        git add deployment.yaml
+        git commit -m "🚀 Auto-update image to ${IMAGE_TAG} from CI"
         git push
+
+
