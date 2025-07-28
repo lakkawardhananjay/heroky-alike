@@ -1,0 +1,38 @@
+name: Deploy to Kubernetes via GitOps
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx 
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Build and push Docker image
+      run: |
+        IMAGE_NAME=dhananjaylakkawar/heroku-alike
+        docker build -t $IMAGE_NAME:latest .
+        docker push $IMAGE_NAME:latest
+
+    - name: Clone GitOps Repo and Update Tag
+      run: |
+        git config --global user.email "lakkawardhananjay@gmail.com"
+        git config --global user.name "lakkawardhananjay"
+
+        git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@github.com/lakkawardhananjay/argocd-parc.git
+        cd argocd-parc/dev
+
+        sed -i 's|image: .*|image: dhananjaylakkawar/heroku-alike:latest|' deployment.yaml
+
+        git commit -am "🚀 Auto-update image to latest from CI"
+        git push
